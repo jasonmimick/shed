@@ -15,24 +15,24 @@ GET /man
  Returns version info and API documentation
 
 GET /:namespace/:path
- GET a class or macro routine from the system
+ <p>GET a class or macro routine from the system
 By default this will return the raw source code.
 	</p>
-You must specify the correct extentsion for the artifact you want
-in the :path parameter.
-For example - 
+<p>You must specify the correct extentsion for the artifact you want
+in the :path parameter.</p>
+<p>For example - 
 Sample.Person.cls
-Foo.mac>
-If you want the default xml export of an resource 
+Foo.mac</p>
+<p>If you want the default xml export of an resource 
 	append '.xml' to the resource
-name>
-If :path is emtpy or contins a "*" wildcard, then a list of the 
+name</p>
+<p>If :path is emtpy or contins a "*" wildcard, then a list of the 
 classes in that namespace is returned.</p>
 For example,
 <pre>
 curl -X GET http://server/shed/samples/cls/Sample.*.cls
 </pre>
-You can get JSON back by specifing the Http-Accept header
+<p>You can get JSON back by specifing the Http-Accept header
 as 'application/json' in your request</p>
 
 POST /:namespace/:path
@@ -53,6 +53,7 @@ Note that only artifacts with the ".cls" or ".mac" extenstion
 are pulled in.
 
 GET /:namespace/git/passwd/:gituser/:repo/:gitusername/:gitpassword
+ <Route Url="/:namespace/git/passwd/:gituser/:repo/:gitusername/:gitpassword" Method="GET" Call="GitPasswd"/>
 Endpoint to store github credentials on the system
 Maps (gituser,repo) to and set of user/pass credentials.
 Stores information per namespace in the ^%git global
