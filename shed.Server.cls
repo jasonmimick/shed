@@ -213,6 +213,11 @@ ClassMethod jsonout() As %Boolean [ CodeMode = expression ]
 $get(^||shed.http.accept)="application/json"
 }
 
+ClassMethod xmlout() As %Boolean [ CodeMode = expression ]
+{
+$get(^||shed.http.accept)="application/xml"
+}
+
 ClassMethod debugon() As %Boolean [ CodeMode = expression ]
 {
 $get(^||shed.debug)
@@ -256,7 +261,6 @@ ClassMethod ProcessCustomHeaders()
 		zw ^||shed.http.accept
 	}
 }
-
 
 XData UrlMap
 {
@@ -661,7 +665,10 @@ ClassMethod GetClass(pNamespace As %String, pClassname As %String = "*") As %Sta
 		 	return $$$OK   
 	    }
 	   
-	   
+	    if ( ..xmlout() ) {
+					    
+			return ..GetXMLClass(pNamespace,pClassname_".cls")   
+	    }
 	    
         Set tSC=##class(%Compiler.UDL.TextServices).GetTextAsStream(pNamespace,pClassname,.tStream)
         If $$$ISERR(tSC) Quit
@@ -742,5 +749,4 @@ ClassMethod GetNamespaces() As %Status
 }
 
 }
-
 
