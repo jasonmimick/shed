@@ -1,15 +1,24 @@
-shed			debug on
-^||shed.http.accept="*/*"
-Get %sys shed.Server.cls 
 Include %occSAX
 
 Class shed.Server Extends %CSP.REST
 {
 
+ClassMethod exception(msg...) As %Exception.General
+{
+	set message=""
+	for i=1:1:msg {
+		set message=message_" "_msg(i)
+	}
+	return ##class(%Exception.GeneralException).%New("shed","shed",message)
+}
+
 ClassMethod gitHTTPGet(namespace, gituser, repo, url) As %Net.HttpResponse
 {
 	set req=##class(%Net.HttpRequest).%New()
 	do ##class(%Net.URLParser).Parse(url,.uc)
+	if ( '$data(uc("host")) ) {
+		throw ..exception("gitHTTPGet: no host found in url",url)
+	}
 	set req.Server=uc("host")
 	
 	set req.Port=$select($get(uc("port"))'="":uc("port"),1:80)
@@ -53,7 +62,6 @@ ClassMethod GitPull(namespace, gituser, repo, path = "") As %Status
 	}
 }
 
-/// <Route Url="/:namespace/git/passwd/:gituser/:repo/:gitusername/:gitpassword" Method="GET" Call="GitPasswd"/>
 /// Endpoint to store github credentials on the system
 /// Maps (gituser,repo) to and set of user/pass credentials.
 /// Stores information per namespace in the ^%git global
@@ -187,7 +195,6 @@ ClassMethod Get(namespace, artifact) As %Status
 	do ..debug("Get",namespace,artifact)
 
 	set type=..GetExtUpper(artifact)
-	//write type
 	if ( type="CLS" ) {
 		
 		return ..GetClass(namespace,artifact)
@@ -439,7 +446,6 @@ Parameter SHEDSERVERCLS = "shed.Server.cls";
 /// CSP app is /shed
 ClassMethod Bootstrap() As %Status [ CodeMode = objectgenerator, ServerOnly = 1 ]
 {
-	Write !,..Logo(),!
 	Write !,"shed bootstraping",!
 	if ( $namespace'="%SYS" ) {
 		return $$$ERROR("shed is only supported in the %SYS namespace!")
@@ -564,16 +570,18 @@ ClassMethod PostClassFromStream(namespace As %String, classname As %String, stre
 			$$$ThrowStatus(sc)
 		}
 		
-		/* no need to return code 
-		set tStream=##class(%Stream.TmpCharacter).%New()
-        Set tSC=##class(%Compiler.UDL.TextServices).GetTextAsStream(namespace,classname,.tStream)
-        if $$$ISERR(sc) $$$ThrowStatus(sc)
-        //write "tStream=",tStream,$c(13,10)
-        do tStream.Rewind()
-        #; Looks good
-        Do tStream.OutputToDevice()
-        */
-    } Catch (e) {
+		do {
+			new $namespace
+			set $namespace=namespace
+			if (..debugon()) {
+				set flags="ckd"
+			} else {
+				set flags="ck-d"
+			}
+			do $system.OBJ.Compile(..StripExt(classname,"CLS"),flags)
+		} while (0)
+		
+	} Catch (e) {
         Set tSC=e.AsStatus()
         Write e.DisplayString()
         return tSC
@@ -584,7 +592,6 @@ ClassMethod PostClassFromStream(namespace As %String, classname As %String, stre
 ClassMethod GetExtUpper(name) As %String
 {
 	set ap=$listfromstring(name,".")
-	//write "ap=",ap,!
 	return $zconvert($list(ap,$listlength(ap)),"U")
 }
 
