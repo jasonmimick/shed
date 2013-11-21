@@ -250,12 +250,13 @@ ClassMethod ProcessCustomHeaders()
 {
   
 	set ^||shed.http.accept=$Get(%request.CgiEnvs("HTTP_ACCEPT"))
-	set ^||shed.debug=$Data(%request.CgiEnvs("HTTP_X_SHED_DEBUG"))
+	set ^||shed.debug=$Get(%request.CgiEnvs("HTTP_X_SHED_DEBUG"),0)
 	if ( ^||shed.debug  ) {
 		write "shed			debug on",!
 		zw ^||shed.http.accept
 	}
 }
+
 
 XData UrlMap
 {
@@ -741,4 +742,5 @@ ClassMethod GetNamespaces() As %Status
 }
 
 }
+
 

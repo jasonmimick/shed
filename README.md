@@ -9,6 +9,45 @@ It currently supports Cache classes, .mac code and integration with github.
 Responses from shed come in only 2 flavors: source code or errors.
 Client driver developers should refer to the following API reference.
 
+A sample client-side utility is included, called shed.
+To install this:
+<pre>
+$make install
+</pre>
+This will put shed.sh into /usr/local/bin by default.
+
+Running
+<pre>
+$shed install _system:SYS@/usr/local/cache
+</pre>
+Would shed-enable the Caché instance installed in /usr/local/cache
+on the local machine.
+
+To interact with your Caché server, shed relies on some configuration
+which is stored within your local .git/config.
+If the user/password and server/port of the Caché instance are not found 
+in your git config, then shed will prompt you.
+You can initialize these settings like this
+
+<pre>
+$shed config user <username>
+$shed config password <password>
+$shed config server <server>:<port>
+$shed config namespace <namespace>
+</pre>
+
+Note, you can pre-configure a subset of these, and then shed will propmt you.
+
+Other commands are 'get' and 'post', just like the raw HTTP API.
+For example,
+<pre>
+$shed get foo.test.cls
+$shed get -ns SAMPLES Sample.Person.cls
+$shed post foo.test.cls
+$shed post -ns SAMPLES Sample.Car.cls
+</pre>
+
+
 API Reference
 -------------
 GET /man
