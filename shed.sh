@@ -3,11 +3,11 @@
 usage()
 {
     cat << 'end-of-usage'
-usage: shed [-h|--help] [-ns|--namespace <namespace>] [-v|--verbose] [-json] <command> [<args>]
+usage: shed [-h|--help] [-ns|--namespace <namespace>] [-v|--verbose] [-f|--format <xml|json>] <command> [<args>]
 
 Available options:
   --namespace   Sets the namespace to connect to on the Caché server
-  --json        Will emit results in JSON format, otherwise plain text
+  --format      Format to return resource, default is plain test, also accepts 'json' or 'xml'
 
 Available commands are:
   install     Will install the shed.Server to a Caché instance
@@ -126,7 +126,7 @@ command=0
 command_arg=0
 namespace=0
 debug=0
-json=0
+format=0
 for arg in $options
 do
   index=`expr $index + 1`
@@ -134,7 +134,7 @@ do
     -v|--verbose) debug=1;;
     -h|--help) usage 
                exit;;
-    --json) json=1;;
+    -f|--format) format=${arguments[index]};;
     -ns|--namespace)  namespace=${arguments[index]};; 
     config) config
             exit;;
@@ -171,8 +171,11 @@ if [ $debug = 1 ]; then
   verbose="-v"
 fi
 
-if [ $json = 1 ]; then
+if [ $format = 'json' ]; then
   json_header="--header Accept:application/json"
+fi
+if [ $format = 'xml' ]; then
+  json_header="--header Accept:application/xml"
 fi
 headers="$debug_header $json_header"
 
