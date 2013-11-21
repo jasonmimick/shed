@@ -27,13 +27,19 @@ To interact with your Caché server, shed relies on some configuration
 which is stored within your local .git/config.
 If the user/password and server/port of the Caché instance are not found 
 in your git config, then shed will prompt you.
-You can initialize these settings like this
+You can see and set these settings like this
 
 <pre>
-$shed config user <username>
-$shed config password <password>
-$shed config server <server>:<port>
-$shed config namespace <namespace>
+$shed config 
+user=
+password=
+server=
+$git config --local --add shed.user jimmy
+$git config --local --add shed.server cache.jimmy.com:57772
+$shed config
+user=jimmy
+password=
+server=cache.jimmmy.com:57772
 </pre>
 
 Note, you can pre-configure a subset of these, and then shed will propmt you.
