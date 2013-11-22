@@ -27,13 +27,18 @@ ClassMethod gitHTTPGet(namespace, gituser, repo, url) As %Net.HttpResponse
 		set req.SSLConfiguration="DefaultClient"
 		set req.Port="443"
 	}
-	if ( '$data(^[namespace]%git(gituser,repo,"credentials")) ) {
+        if ( ^||shed.git.user'="" )  {
+          set req.Username=$get(^||shed.git.user))
+          set req.Password=$get(^||shed.git.passwd)
+        } else {
+	  if ( '$data(^[namespace]%git(gituser,repo,"credentials")) ) {
 		throw ##class(%Exception.General).%New("git","NoCredentials",,"No git credentials found for repo="_repo)
-	} else {
+	  } else {
 		set creds=^[namespace]%git(gituser,repo,"credentials")
 		set req.Username=$list(creds,1)
 		set req.Password=$list(creds,2)
-	}
+	  }
+        }
 	do ..debug("Git HTTP Request to",uc("path")_"?"_uc("query"))
 	set sc=req.Get(uc("path")_"?"_uc("query"))
 	do ..debug("Git HTTP Response size=",req.HttpResponse.ContentLength)
@@ -253,8 +258,9 @@ ClassMethod Post(namespace, artifact) As %Status
 /// This can turn on debugging, request json content, etc
 ClassMethod ProcessCustomHeaders()
 {
-  
-	set ^||shed.http.accept=$Get(%request.CgiEnvs("HTTP_ACCEPT"))
+        set ^||shed.git.user=$Get(%request.CgiEnvs("X_SHED_GIT_USER"))
+        set ^||shed.git.passwd=$Get(%request.CgiEnvs("X_SHED_GIT_PASSWORD"))
+        set ^||shed.http.accept=$Get(%request.CgiEnvs("HTTP_ACCEPT"))
 	set ^||shed.debug=$Get(%request.CgiEnvs("HTTP_X_SHED_DEBUG"),0)
 	if ( ^||shed.debug  ) {
 		write "shed			debug on",!

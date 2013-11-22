@@ -15,6 +15,8 @@ Available commands are:
   man         Outputs the /man from the current shed server
   get         GETs a resource from a Caché instance
   post        POSTs a resource to Caché
+  git-pull    Pull a repo from github and load it into Caché
+
 
 To configure user/password/server run:
 $git config --local shed.user <username>

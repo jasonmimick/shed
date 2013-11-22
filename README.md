@@ -6,7 +6,8 @@ Responses from shed come in only 2 flavors: source code or errors.
 
 ## What's it do?
 
-* Provides an HTTP endpoint to GET and POST Caché classes and macro routines.* Command-line script which wraps curl to invoke shed
+* Provides an HTTP endpoint to GET and POST Caché classes and macro routines.
+* Command-line script which wraps curl to invoke shed
 * github integration - push and pull your repos between a Caché instance and github
 
 ### Getting started
@@ -18,7 +19,7 @@ Clone this repo and then install. To installed the client-side tool:
 This will put shed.sh into /usr/local/bin by default.
 
 Then, running
-`</pre>`
+`shed install user@passwd:/usr/local/cache`
 Would shed-enable the Caché instance installed in /usr/local/cache
 on the local machine.
 
@@ -96,7 +97,10 @@ are pulled in.
 You can specify a full respository or the path
 to a file or folder within the respository.
 Note that only artifacts with the ".cls" or ".mac" extenstion
-are pulled in.
+are pulled in. Rather that storing your git credentials on the Caché system
+you can pass in the X-Shed-Git- HTTP header's like this:
+
+`--header "X-Shed-Git-User:<gituser>" --header "X-Shed-Git-Password:<gitpasswd>"
 
 `GET /:namespace/git/passwd/:gituser/:repo/:gitusername/:gitpassword`
 Endpoint to store github credentials on the system
