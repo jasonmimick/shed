@@ -253,6 +253,14 @@ ClassMethod Post(namespace, artifact) As %Status
 	return $$$ERROR("Unkown extenstion '"_type_"'")
 }
 
+ClassMethod GitHook()
+{
+    do %request.Content.Rewind()
+    kill ^gitdata
+    while ( '%request.Content.AtEnd ) {
+        set ^gitdata($i(^gitdata))=%request.Read()
+    }
+}
 /// Check for any custom headers
 /// And sent process-private flags
 /// This can turn on debugging, request json content, etc
@@ -275,6 +283,7 @@ XData UrlMap
 
 <Route Url="/:namespace/:path" Method="GET" Call="Get" />
 <Route Url="/:namespace/:path" Method="POST" Call="Post" />
+<Route Url="/:namespace/git/hook" Method="POST" Call="GitHook" />
 <Route Url="/:namespace/git/pull/:gituser/:repo/" Method="GET" Call="GitPull" />
 <Route Url="/:namespace/git/pull/:gituser/:repo/:path" Method="GET" Call="GitPull" />
 <Route Url="/:namespace/git/passwd/:gituser/:repo/:gitusername/:gitpassword" Method="GET" Call="GitPasswd"/>
@@ -553,7 +562,7 @@ ClassMethod PostMacFromStream(namespace, routine, stream) As %Status
 /// > --header "Content-Type:text/plain" \
 /// > http://_system:SYS@sandbox.healthshare.us:57772/shed/user/cls/Hello.World
 /// </pre>
-ClassMethod PostClass(namespace As %String, classname As %String) As %Status
+ClassMethod  PostClass(namespace As %String, classname As %String) As %Status
 {
 	return ..PostClassFromStream(namespace,classname,%request.Content)
 }
