@@ -650,7 +650,7 @@ ClassMethod GetClass(pNamespace As %String, pClassname As %String = "*") As %Sta
 		 	//write "pClassname=",pClassname,!
 		 	set result=stmt.%Execute(pClassname)
 		 	//do result.%Display()
-		 	If ..jsonout() {
+		 	If ( ..xmlout() || ..jsonout()) {
         		Set %response.ContentType="application/json"
 				set list=##class(%ListOfObjects).%New()
 			}
