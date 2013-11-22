@@ -25,9 +25,7 @@ end-of-usage
 # helper routines start
 config()
 {
-  echo "user=" `git config --local --get shed.user`
-  echo "password=" `git config --local --get shed.password`
-  echo "server=" `git config --local --get shed.server`
+  git config --get-regexp shed
 }
 
 # parse ccontrol qlist info
@@ -153,19 +151,10 @@ if [ $command = 0 ]; then
   usage
   exit
 fi
-# check required parameters, user/pass/server/port
-user=`git config --local --get shed.user`
-if [ -z $user ]; then
-  user=`git config --global --get shed.user`
-fi
-password=`git config --local --get shed.password`
-if [ -z $password ]; then
-  password=`git config --global --get shed.password`
-fi
-server=`git config --local --get shed.server`
-if [ -z $server ]; then
-  server=`git config --global --get shed.server`
-fi
+
+user=`git config --get shed.user`
+password=`git config --get shed.password`
+server=`git config --get shed.server`
 
 
 if [ -z $user ]; then echo "user not found in git config, run shed --help"; fi

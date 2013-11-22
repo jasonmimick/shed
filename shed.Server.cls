@@ -650,15 +650,23 @@ ClassMethod GetClass(pNamespace As %String, pClassname As %String = "*") As %Sta
 			}
 		 	while ( result.%Next() ) {
 			 	
-			 	If ..jsonout() {
-        			set po=##class(%ZEN.proxyObject).%New()
-        			set po.name=result.%Get("Name")
-        			set po.timeChanged=$zdt(result.%Get("TimeChanged"),3)
-        			do list.Insert(po)	
-        	 	} else {
+			 	If (..xmlout() || ..jsonout()) {
+        			  set po=##class(%ZEN.proxyObject).%New()
+        			  set po.name=result.%Get("Name")
+        			  set po.timeChanged=$zdt(result.%Get("TimeChanged"),3)
+        			  do list.Insert(po)	
+        	 	        } else {
 				 	write result.%Get("Name")," ",$zdt(result.%Get("TimeChanged")),!
 			 	}
 		 	}
+                        If ..xmlout() {
+                              write "<classes>"
+                              for i=1:1:list.Count() {
+                                set p=list.GetAt(i)
+                                write "<class name="""_l.name_""" timeChanged="""_p.timeChanged_""" />"
+                              }
+                              write "</classes>"
+                        }
 			If ..jsonout() {
 				do ##class(%ZEN.Auxiliary.jsonProvider).%ObjectToJSON(list)
 			}
