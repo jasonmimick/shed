@@ -100,12 +100,7 @@ Note that only artifacts with the ".cls" or ".mac" extenstion
 are pulled in. Rather that storing your git credentials on the Caché system
 you can pass in the X-Shed-Git- HTTP header's like this:
 
-`--header "X-Shed-Git-User:<gituser>" --header "X-Shed-Git-Password:<gitpasswd>"
-
-`GET /:namespace/git/passwd/:gituser/:repo/:gitusername/:gitpassword`
-Endpoint to store github credentials on the system
-Maps (gituser,repo) to and set of user/pass credentials.
-Stores information per namespace in the ^%git global
+    --header "X-Shed-Git-User:&lt;gituser&gt;" --header "X-Shed-Git-Password:&lt;gitpasswd&gt;"
 
 `GET /namespaces`
 
