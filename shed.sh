@@ -155,8 +155,17 @@ if [ $command = 0 ]; then
 fi
 # check required parameters, user/pass/server/port
 user=`git config --local --get shed.user`
+if [ -z $user ]; then
+  user=`git config --global --get shed.user`
+fi
 password=`git config --local --get shed.password`
+if [ -z $password ]; then
+  password=`git config --global --get shed.password`
+fi
 server=`git config --local --get shed.server`
+if [ -z $server ]; then
+  server=`git config --global --get shed.server`
+fi
 
 
 if [ -z $user ]; then echo "user not found in git config, run shed --help"; fi
