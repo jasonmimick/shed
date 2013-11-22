@@ -258,8 +258,8 @@ ClassMethod Post(namespace, artifact) As %Status
 /// This can turn on debugging, request json content, etc
 ClassMethod ProcessCustomHeaders()
 {
-        set ^||shed.git.user=$Get(%request.CgiEnvs("X_SHED_GIT_USER"))
-        set ^||shed.git.passwd=$Get(%request.CgiEnvs("X_SHED_GIT_PASSWORD"))
+        set ^||shed.git.user=$Get(%request.CgiEnvs("HTTP_X_SHED_GIT_USER"))
+        set ^||shed.git.passwd=$Get(%request.CgiEnvs("HTTP_X_SHED_GIT_PASSWORD"))
         set ^||shed.http.accept=$Get(%request.CgiEnvs("HTTP_ACCEPT"))
 	set ^||shed.debug=$Get(%request.CgiEnvs("HTTP_X_SHED_DEBUG"),0)
 	if ( ^||shed.debug  ) {
