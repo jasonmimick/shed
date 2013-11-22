@@ -22,6 +22,23 @@ To configure user/password/server run:
 $git config --local shed.user <username>
 $git config --local shed.password <password>
 $git config --local shed.server <server:port>
+
+Examples:
+Install shed to /var/isc/healthshare
+#shed install _system:SYS@/var/isc/healthshare
+
+Grab a copy of the Sample.Person class
+#shed -ns SAMPLES get Sample.Person.cls
+
+Fetch a json formated list of all the classes in the EnsLib.HL7 package
+#shed -ns ENSDEMO --format json get EnsLib.HL7.*.cls
+
+Update a class to the USER namespace
+#shed -ns USER post Acme.Widgets.RocketLauncher.cls
+
+Pull a fresh copy of all the resource in the acme/widget repo on github into Caché
+This command takes 3 arguments, git user, git password, and path of repository.
+#shed -ns USER git-pull joe@acme.com secret123 acme/widgets
 end-of-usage
 }
 # helper routines start
@@ -145,6 +162,12 @@ do
       post) command="post"
            command_arg=${arguments[index]};;
       man)  command="man";;
+    git-pull) command="git-pull"
+            ii=`expr $index+1`
+            iii=`expr $index+2`
+            command_arg=("${arguments[index]}" "${arguments[ii]}" "${arguments[iii]}")
+            echo "command_arg.length=${#command_arg[@]}"
+            echo "command_arg=$command_arg";;
   esac
 done
 
@@ -177,6 +200,11 @@ fi
 if [ $format = 'xml' ]; then
   json_header="--header Accept:application/xml"
 fi
+if [ $command = 'git-pull' ]; then
+  gituser=${command_arg[0]}
+  gitpasswd=${command_arg[1]}
+  git_header="-H X-Shed-Git-User:$gituser -H X-Shed-Git-Password:$gitpasswd"
+fi
 headers="$debug_header $json_header"
 
 #set -x
@@ -189,4 +217,6 @@ case $command in
     curl $verbose -X POST $headers --header "Content-Type:text.plain" --data-binary @$command_arg http://$user:$password@$server/shed/$namespace/$command_arg ;;
   install)
     shedLoader $command_arg $user $password;;
+  git-pull)
+    curl $verbose -X GET $git_header http://$user:$password@$server/shed/$namespace/git/pull/${command_arg[2]}/ ;;
   esac
