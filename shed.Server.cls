@@ -28,7 +28,7 @@ ClassMethod gitHTTPGet(namespace, gituser, repo, url) As %Net.HttpResponse
 		set req.Port="443"
 	}
         if ( ^||shed.git.user'="" )  {
-          set req.Username=$get(^||shed.git.user))
+          set req.Username=$get(^||shed.git.user)
           set req.Password=$get(^||shed.git.passwd)
         } else {
 	  if ( '$data(^[namespace]%git(gituser,repo,"credentials")) ) {
