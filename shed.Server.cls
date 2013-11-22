@@ -669,7 +669,7 @@ ClassMethod GetClass(pNamespace As %String, pClassname As %String = "*") As %Sta
                               write "<classes>"
                               for i=1:1:list.Count() {
                                 set p=list.GetAt(i)
-                                write "<class name="""_l.name_""" timeChanged="""_p.timeChanged_""" />"
+                                write "<class name="""_p.name_""" timeChanged="""_p.timeChanged_""" />"
                               }
                               write "</classes>"
                         }

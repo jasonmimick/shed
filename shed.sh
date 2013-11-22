@@ -185,7 +185,8 @@ server=`git config --get shed.server`
 if [ -z $user ]; then echo "user not found in git config, run shed --help"; fi
 if [ -z $server ]; then echo "server not found in git config, run shed --help"; fi
 if [ -z $password ]; then
-  echo -n "Caché password ($user):" read password
+  echo -n "Caché password for user='$user':" 
+  read password
 fi
 if [ -z $password ]; then echo "password not found, run shed --help"; fi
 verbose="--silent"
