@@ -24,10 +24,7 @@ ClassMethod Hook(namespace As %String = {$namespace}) As %Status
 	set payload = %request.Get("payload")  
 	set sysEvent = "github"_event
 	set created = $system.Event.Create(sysEvent)
-	if ( 'created ) {
-		do LOG^%ETN("Unable to create $system.Event with resource name ='"_sysEvent_"'")
-		quit '$$$OK
-	}
+	// if it was 'created, then it already exists
 	set $$$gitHookGlobal(delivery)=$lb(event,$ZTS,payload)
 	set $$$gitHookGlobal(event,delivery)=""	// index on event
 	set sig=$system.Event.Signal(sysEvent,delivery)
