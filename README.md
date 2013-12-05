@@ -106,3 +106,6 @@ you can pass in the X-Shed-Git- HTTP header's like this:
 
 Lists the namespace on the Caché instance.
 
+# Future
+
+Git Hooks. shed.GitHook.cls is a class which accepts GitHub events. These are posted to a %SYSTEM.Event queue which allows you to handle these events in your own application.
