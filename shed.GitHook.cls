@@ -11,9 +11,7 @@ XData UrlMap
 ClassMethod Hook(namespace As %String = {$namespace}) As %Status
 {
 	#define gitHookGlobal	^github.hook
-	write "GitHook namespace=",namespace,!
     //kill ^gitdata
-    write "%request.Content=",%request.Content,!
     set i=$i(^gitdata)
     set ^gitdata(i,"ContentType")=%request.ContentType
     merge ^gitdata(i,"Data")=%request.Data
@@ -31,5 +29,19 @@ ClassMethod Hook(namespace As %String = {$namespace}) As %Status
     return $$$OK
 }
 
+ClassMethod pull(ns as %String,payload as %String)
+{
+	set sc=##class(%ZEN.Auxiliary.jsonProvider).%ConvertJSONToObject(payload,,.obj)
+	zw obj
+	set repo=obj.repository.name
+	zw repo
+	set owner=obj.repository.owner.name
+	zw owner
+	try {
+		//set sc=##class(shed.Server).GitPull(ns,user,repo)
+	} catch (error) {
+		break
+	}
+}
 }
 

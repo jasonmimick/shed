@@ -8,5 +8,5 @@ ns=SAMPLES
 rm $class
 ./shed.sh --namespace $ns get $class > $class
 ./shed.sh --namespace $ns post $class
-rm $class
+#rm $class
 
