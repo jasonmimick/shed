@@ -213,7 +213,6 @@ case $command in
   man)
     curl $verbose -X GET $headers http://$user:$password@$server/shed/man ;;
   get)
-	echo "command_arg=$command_arg"
     curl $verbose -X GET $headers http://$user:$password@$server/shed/$namespace/$command_arg ;;
   post)
     curl $verbose -X POST $headers --header "Content-Type:text.plain" --data-binary @$command_arg http://$user:$password@$server/shed/$namespace/$command_arg ;;
