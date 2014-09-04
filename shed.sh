@@ -79,6 +79,8 @@ shedLoader()
 load(filename)  public  {
  set fs=##class(%Stream.FileCharacter).%New()
  set fs.Filename=filename
+ while ( 'fs.AtEnd ) { write fs.ReadLine(),! }
+ do fs.Rewind()
  set firstLine=fs.ReadLine()
  do fs.Rewind()
  if ( $length(firstLine)=fs.Size ) {
@@ -100,7 +102,7 @@ end-of-shed.loader.mac
 
 instance=$( instanceName $install_dir )
 csession="$install_dir/bin/csession"
-namespace="USER"  #"%SYS"
+namespace="%SYS"
 #namespace="`echo $namespace | tr '[:lower:]' '[:upper:']`"
 system="\\\$system"
 echo namespace=$namespace
@@ -213,7 +215,6 @@ case $command in
   man)
     curl $verbose -X GET $headers http://$user:$password@$server/shed/man ;;
   get)
-	echo "command_arg=$command_arg"
     curl $verbose -X GET $headers http://$user:$password@$server/shed/$namespace/$command_arg ;;
   post)
     curl $verbose -X POST $headers --header "Content-Type:text.plain" --data-binary @$command_arg http://$user:$password@$server/shed/$namespace/$command_arg ;;

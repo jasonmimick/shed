@@ -47,6 +47,8 @@ shedLoader()
 load(filename)  public  {
  set fs=##class(%Stream.FileCharacter).%New()
  set fs.Filename=filename
+ while ( 'fs.AtEnd } { write rs.ReadLine(),! }
+ do fs.Rewind()
  set classname=$piece(filename,##class(%File).GetDirectory(filename),2)
  set sc=##class(%Compiler.UDL.TextServices).SetTextFromStream($zu(5),classname,fs)
  if ('sc) {

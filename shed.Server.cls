@@ -1,4 +1,4 @@
-Include %occSAX
+Include (%sySite, %occSAX)
 
 Class shed.Server Extends %CSP.REST
 {
@@ -27,18 +27,18 @@ ClassMethod gitHTTPGet(namespace, gituser, repo, url) As %Net.HttpResponse
 		set req.SSLConfiguration="DefaultClient"
 		set req.Port="443"
 	}
-        if ( ^||shed.git.user'="" )  {
-          set req.Username=$get(^||shed.git.user)
-          set req.Password=$get(^||shed.git.passwd)
-        } else {
-	  if ( '$data(^[namespace]%git(gituser,repo,"credentials")) ) {
-		throw ##class(%Exception.General).%New("git","NoCredentials",,"No git credentials found for repo="_repo)
-	  } else {
-		set creds=^[namespace]%git(gituser,repo,"credentials")
-		set req.Username=$list(creds,1)
-		set req.Password=$list(creds,2)
-	  }
-        }
+     if ( ^||shed.git.user'="" )  {
+     		set req.Username=$get(^||shed.git.user)
+       	set req.Password=$get(^||shed.git.passwd)
+     } else {
+	  	if ( '$data(^[namespace]%git(gituser,repo,"credentials")) ) {
+			throw ##class(%Exception.General).%New("git","NoCredentials",,"No git credentials found for repo="_repo)
+	  	} else {
+			set creds=^[namespace]%git(gituser,repo,"credentials")
+			set req.Username=$list(creds,1)
+			set req.Password=$list(creds,2)
+	  	}
+    	}
 	do ..debug("Git HTTP Request to",uc("path")_"?"_uc("query"))
 	set sc=req.Get(uc("path")_"?"_uc("query"))
 	do ..debug("Git HTTP Response size=",req.HttpResponse.ContentLength)
@@ -46,9 +46,9 @@ ClassMethod gitHTTPGet(namespace, gituser, repo, url) As %Net.HttpResponse
 }
 
 /// Pulls artifacts from github into Cache.
-/// You can specify a full respository or the path
-/// to a file or folder within the respository.
-/// Note that only artifacts with the ".cls" or ".mac" extenstion
+/// You can specify a full repository or the path
+/// to a file or folder within the repository.
+/// Note that only artifacts with the ".cls" or ".mac" extension
 /// are pulled in.
 ClassMethod GitPull(namespace, gituser, repo, path = "") As %Status
 {
@@ -132,9 +132,6 @@ ClassMethod git(gituser, repo, namespace = {$namespace}, path = "/")
 			//zw oa
 			set:t1.type="dir" t1.name=t1.name_"/"
 			do ..git(gituser,repo,namespace,path_t1.name)
-			
-			
-			
 		}
 	}
 }
@@ -200,8 +197,7 @@ ClassMethod Get(namespace, artifact) As %Status
 	do ..debug("Get",namespace,artifact)
 
 	set type=..GetExtUpper(artifact)
-	if ( type="CLS" ) {
-		
+	if ( type="CLS" ) {		
 		return ..GetClass(namespace,artifact)
 	}
 	if ( type="MAC" ) {
@@ -210,7 +206,7 @@ ClassMethod Get(namespace, artifact) As %Status
 	if ( type="XML" ) {
 		return ..GetXMLClass(namespace,artifact)
 	}
-	return $$$ERROR("Unkown extenstion '"_type_"'")
+	return $$$ERROR("Unknown extension '"_type_"'")
 }
 
 ClassMethod jsonout() As %Boolean [ CodeMode = expression ]
@@ -246,8 +242,7 @@ ClassMethod Post(namespace, artifact) As %Status
 	if ( type="CLS" ) {
 		return ..PostClass(namespace,artifact)
 	}
-	if ( type="MAC" ) {
-		
+	if ( type="MAC" ) {		
 		return ..PostMac(namespace,artifact)
 	}
 	return $$$ERROR("Unkown extenstion '"_type_"'")
@@ -261,14 +256,15 @@ ClassMethod GitHook()
         set ^gitdata($i(^gitdata))=%request.Read()
     }
 }
+
 /// Check for any custom headers
 /// And sent process-private flags
 /// This can turn on debugging, request json content, etc
 ClassMethod ProcessCustomHeaders()
 {
-        set ^||shed.git.user=$Get(%request.CgiEnvs("HTTP_X_SHED_GIT_USER"))
-        set ^||shed.git.passwd=$Get(%request.CgiEnvs("HTTP_X_SHED_GIT_PASSWORD"))
-        set ^||shed.http.accept=$Get(%request.CgiEnvs("HTTP_ACCEPT"))
+	set ^||shed.git.user=$Get(%request.CgiEnvs("HTTP_X_SHED_GIT_USER"))
+     	set ^||shed.git.passwd=$Get(%request.CgiEnvs("HTTP_X_SHED_GIT_PASSWORD"))
+     	set ^||shed.http.accept=$Get(%request.CgiEnvs("HTTP_ACCEPT"))
 	set ^||shed.debug=$Get(%request.CgiEnvs("HTTP_X_SHED_DEBUG"),0)
 	if ( ^||shed.debug  ) {
 		write "shed			debug on",!
@@ -276,51 +272,42 @@ ClassMethod ProcessCustomHeaders()
 	}
 }
 
+/* $compile() does not support XData on non-Windows platforms :(
+   You need to comment out XData block and instead use the
+   (normally compile-time-generated) DispatchMap method
 XData UrlMap
 {
 <Routes>
-<Route Url="/man" Method="GET" Call="Man"/>
-
-<Route Url="/:namespace/:path" Method="GET" Call="Get" />
-<Route Url="/:namespace/:path" Method="POST" Call="Post" />
-<Route Url="/:namespace/git/hook" Method="POST" Call="GitHook" />
-<Route Url="/:namespace/git/pull/:gituser/:repo/" Method="GET" Call="GitPull" />
-<Route Url="/:namespace/git/pull/:gituser/:repo/:path" Method="GET" Call="GitPull" />
-<Route Url="/:namespace/git/passwd/:gituser/:repo/:gitusername/:gitpassword" Method="GET" Call="GitPasswd"/>
-<!--
-<Route Url="/:namespace/cls" Method="GET" Call="GetClass"/>
-<Route Url="/:namespace/cls/:classname" Method="GET" Call="GetClass"/>
-<Route Url="/:namespace/xmlcls/:classname" Method="GET" Call="GetXMLClass"/>
-<Route Url="/:namespace/mac" Method="GET" Call="GetMac"/>
-<Route Url="/:namespace/mac/:routine" Method="GET" Call="GetMac"/>
--->
-
-<!--
-<Route Url="/:namespace/cls/:classname" Method="POST" Call="PostClass"/>
-<Route Url="/:namespace/mac/:routine" Method="POST" Call="PostMac"/>
--->
-<Route Url="/namespaces" Method="GET" Call="GetNamespaces"/>
-<Route Url="/upgrade" Method="GET" Call="Upgrade"/>
-
+	<Route Url="/man" Method="GET" Call="Man"/>
+	<Route Url="/:namespace/:path" Method="GET" Call="Get" />
+	<Route Url="/:namespace/:path" Method="POST" Call="Post" />
+	<Route Url="/:namespace/git/hook" Method="POST" Call="GitHook" />
+	<Route Url="/:namespace/git/pull/:gituser/:repo/" Method="GET" Call="GitPull" />
+	<Route Url="/:namespace/git/pull/:gituser/:repo/:path" Method="GET" Call="GitPull" />
+	<Route Url="/:namespace/git/passwd/:gituser/:repo/:gitusername/:gitpassword" Method="GET" Call="GitPasswd"/>
+	<Route Url="/namespaces" Method="GET" Call="GetNamespaces"/>
+	<Route Url="/upgrade" Method="GET" Call="Upgrade"/>
 </Routes>
 }
+*/
+ClassMethod DispatchMap(pIndex As %Integer) As %String
+{
+         If pIndex=1 Quit $ListBuild("/man","GET","Man")
+         If pIndex=2 Quit $ListBuild("/([^/]+)/([^/]+)","GET","Get")
+         If pIndex=3 Quit $ListBuild("/([^/]+)/([^/]+)","POST","Post")
+         If pIndex=4 Quit $ListBuild("/([^/]+)/git/hook","POST","GitHook")
+         If pIndex=5 Quit $ListBuild("/([^/]+)/git/pull/([^/]+)/([^/]+)/","GET","GitPull")
+         If pIndex=6 Quit $ListBuild("/([^/]+)/git/pull/([^/]+)/([^/]+)/([^/]+)","GET","GitPull")
+         If pIndex=7 Quit $ListBuild("/([^/]+)/git/passwd/([^/]+)/([^/]+)/([^/]+)/([^/]+)","GET","GitPasswd")
+         If pIndex=8 Quit $ListBuild("/namespaces","GET","GetNamespaces")
+         If pIndex=9 Quit $ListBuild("/upgrade","GET","Upgrade")
+         Quit ""
+}
 
-Parameter VERSION = "0.0.2";
+Parameter VERSION = "0.0.3";
 
 ClassMethod Logo() As %String
 {
-	/*
- set logo="             _ .-') _     ('-.   "_$C(10)
- set logo=logo_"            ( (  OO) )  _(  OO)  "_$C(10)
- set logo=logo_" .-'),-----. \     .'_ (,------. "_$C(10)
- set logo=logo_" ( OO'  .-.  ',`'--..._) |  .---' "_$C(10)
- set logo=logo_" /   |  | |  ||  |  \  ' |  |     "_$C(10)
- set logo=logo_" \_) |  |\|  ||  |   ' |(|  '--.  "_$C(10)
- set logo=logo_"   \ |  | |  ||  |   / : |  .--'  "_$C(10)
- set logo=logo_"    `'  '-'  '|  '--'  / |  `---. "_$C(10)
- set logo=logo_"      `-----' `-------'  `------'"_$C(10)
- return logo
- 	*/
  set $list(logo,1)=" _|_  _  _|"
  set $list(logo,2)="_\| |(/_(_|"
  return $listtostring(logo,$C(10))_$C(10)
@@ -392,7 +379,7 @@ ClassMethod Man() As %Status
     #; Create the Entity Resolver
     Set tResolver=##class(%XML.SAX.XDataEntityResolver).%New(tClassName)
         
-    #; Parse the XML data in the specfied stream
+    #; Parse the XML data in the specified stream
     Set tSC=##Class(%XML.SAX.Parser).ParseStream(tStream,tHandler,tResolver,,,"Schema")
     If $$$ISERR(tSC) Quit       
         
@@ -401,7 +388,7 @@ ClassMethod Man() As %Status
     //zw tMap
     //break
     If $Data(tMap("error"))||$Data(tMap("warning")) {
-         Write "ERROR! Invalid UrlMap XData found unable to generate documention",!
+         Write "ERROR! Invalid UrlMap XData found unable to generate documentation",!
 		Write "Try the /upgrade endpoint!",!
     	return $$$ERROR($$$InvalidDispatchMap)
     }
@@ -432,16 +419,10 @@ ClassMethod Man() As %Status
         w:'plain "</p>"
         write LF
         //$$$GENERATE(" If pIndex="_tCounter_" Quit $ListBuild("""_tPattern_""","""_tMethod_""","""_tDispatch_""")")
-   }
-      Write "$ZV=",$ZV,LF      
+    }
+    	Write "$ZV=",$ZV,LF      
 	if ( 'plain ) {
-		
-	&html<
-	</div></div>
-		</body>
-		</html>
-	>	
-		
+		&html<</div></div></body></html>>		
 	}
 	Quit $$$OK
 }
@@ -562,34 +543,30 @@ ClassMethod PostMacFromStream(namespace, routine, stream) As %Status
 /// > --header "Content-Type:text/plain" \
 /// > http://_system:SYS@sandbox.healthshare.us:57772/shed/user/cls/Hello.World
 /// </pre>
-ClassMethod  PostClass(namespace As %String, classname As %String) As %Status
+ClassMethod PostClass(namespace As %String, classname As %String) As %Status
 {
 	return ..PostClassFromStream(namespace,classname,%request.Content)
 }
 
 ClassMethod PostClassFromStream(namespace As %String, classname As %String, stream As %Stream.Object) As %Status
 {
-	
-	 #dim tStream As %Stream.Character
-    
-    Try {
-	    
-	    // Detection for line end - either (13,10) or $c(10)!!!!
+	#dim tStream As %Stream.Character
+    	Try {
+		// Detection for line end - either (13,10) or $c(10)!!!!
 	   	set firstLine=stream.ReadLine()
 	   	do stream.Rewind()
-	    if ( $length(firstLine)=stream.Size ) {
-	    	set stream.LineTerminator=$C(10)
-	    }
+	    	if ( $length(firstLine)=stream.Size ) {
+	    		set stream.LineTerminator=$C(10)
+	    	}
 		if ( $ascii($extract(firstLine,$length(firstLine)))=13 ) {
 			set stream.LineTerminator=$C(13,10)
 		}
-	    set sc=##class(%Compiler.UDL.TextServices).SetTextFromStream(namespace,classname,stream)
+	    	set sc=##class(%Compiler.UDL.TextServices).SetTextFromStream(namespace,classname,stream)
 		if $$$ISERR(sc) {
 			write "Compiler Error",!
 			do $system.Status.DisplayError(sc)
 			$$$ThrowStatus(sc)
 		}
-		
 		do {
 			new $namespace
 			set $namespace=namespace
@@ -601,10 +578,10 @@ ClassMethod PostClassFromStream(namespace As %String, classname As %String, stre
 			do $system.OBJ.Compile(..StripExt(classname,"CLS"),flags)
 		} while (0)
 		
-	} Catch (e) {
-        Set tSC=e.AsStatus()
-        Write e.DisplayString()
-        return tSC
+	} Catch e {
+       	Set tSC=e.AsStatus()
+        	Write e.DisplayString()
+        	return tSC
     }
     return $$$OK
 }
@@ -636,80 +613,76 @@ ClassMethod StripExt(name, ext) As %String
 /// 
 ClassMethod GetClass(pNamespace As %String, pClassname As %String = "*") As %Status
 {
-    #dim tSC As %Status = $$$OK
-    #dim e As %Exception.AbstractException
-    
-    #dim tStream As %Stream.Character
-    
-    Try {
-	     set pClassname=..StripExt(pClassname,"CLS")
-	    // Check if valid classname - 
-	    // if not, treat as a query to return classnames which match
-	    // along with last update timestamp
-	    //if ( '##class(%Dictionary.CacheClassname).IsValid(pClassname) ) {
+    	#dim tSC As %Status = $$$OK
+    	#dim e As %Exception.AbstractException
+    	#dim tStream As %Stream.Character
+    	Try {
+		set pClassname=..StripExt(pClassname,"CLS")
+	    	// Check if valid classname - 
+	    	// if not, treat as a query to return classnames which match
+	    	// along with last update timestamp
+	    	//if ( '##class(%Dictionary.CacheClassname).IsValid(pClassname) ) {
 	
 		if ( pClassname["*" ) {
 			if (##class(%SYS.Namespace).Exists(pNamespace) ) {
  				set $namespace=pNamespace
  			}
 			set pClassname=$replace(pClassname,"*","%")
-			 set stmt=##class(%SQL.Statement).%New()
-			 // TODO - filter out % classes!
+			set stmt=##class(%SQL.Statement).%New()
+			// TODO - filter out % classes!
 		 	set sc=stmt.%Prepare("select Name,TimeChanged from %Dictionary.ClassDefinition where Name Like ?")
 		 	//write "pClassname=",pClassname,!
 		 	set result=stmt.%Execute(pClassname)
 		 	//do result.%Display()
 		 	If ( ..xmlout() || ..jsonout()) {
-        		Set %response.ContentType="application/json"
+        			Set %response.ContentType="application/json"
 				set list=##class(%ListOfObjects).%New()
 			}
 		 	while ( result.%Next() ) {
-			 	
 			 	If (..xmlout() || ..jsonout()) {
-        			  set po=##class(%ZEN.proxyObject).%New()
-        			  set po.name=result.%Get("Name")
-        			  set po.timeChanged=$zdt(result.%Get("TimeChanged"),3)
-        			  do list.Insert(po)	
-        	 	        } else {
+        				set po=##class(%ZEN.proxyObject).%New()
+        			  	set po.name=result.%Get("Name")
+        			  	set po.timeChanged=$zdt(result.%Get("TimeChanged"),3)
+        			  	do list.Insert(po)	
+        	 	      } else {
 				 	write result.%Get("Name")," ",$zdt(result.%Get("TimeChanged")),!
 			 	}
 		 	}
-                        If ..xmlout() {
-                              write "<classes>"
-                              for i=1:1:list.Count() {
-                                set p=list.GetAt(i)
-                                write "<class name="""_p.name_""" timeChanged="""_p.timeChanged_""" />"
-                              }
+                	If ..xmlout() {
+                		write "<classes>"
+                      for i=1:1:list.Count() {
+                      	set p=list.GetAt(i)
+                           	write "<class name="""_p.name_""" timeChanged="""_p.timeChanged_""" />"
+				}
                               write "</classes>"
-                        }
+                	}
 			If ..jsonout() {
 				do ##class(%ZEN.Auxiliary.jsonProvider).%ObjectToJSON(list)
 			}
 		 	return $$$OK   
-	    }
+	    	}
 	   
-	    if ( ..xmlout() ) {
-					    
+	    	if ( ..xmlout() ) {
 			return ..GetXMLClass(pNamespace,pClassname_".cls")   
-	    }
+	    	}
 	    
-        Set tSC=##class(%Compiler.UDL.TextServices).GetTextAsStream(pNamespace,pClassname,.tStream)
-        If $$$ISERR(tSC) Quit
+        	Set tSC=##class(%Compiler.UDL.TextServices).GetTextAsStream(pNamespace,pClassname,.tStream)
+        	If $$$ISERR(tSC) Quit
         
-        #; Looks good
-        if ( '..jsonout() ) {
-	        Do tStream.OutputToDevice()
-        } else {
-	        set code=""
-	        while ( 'tStream.AtEnd ) {
-		        set code=code_tStream.Read()
-	        }
-	        set base64source=$system.Encryption.Base64Encode(code)
-	     	set po=##class(%ZEN.proxyObject).%New()
-	     	set po.name=pClassname
-	     	set po.content=base64source
-	     	do po.%ToJSON() 
-        }    
+        	#; Looks good
+        	if ( '..jsonout() ) {
+	     		Do tStream.OutputToDevice()
+        	} else {
+	     		set code=""
+	        	while ( 'tStream.AtEnd ) {
+		     		set code=code_tStream.Read()
+	     		}
+		     	set base64source=$system.Encryption.Base64Encode(code)
+		     	set po=##class(%ZEN.proxyObject).%New()
+	     		set po.name=pClassname
+	     		set po.content=base64source
+	     		do po.%ToJSON() 
+        	}    
     } Catch (e) {
         Set tSC=e.AsStatus()
     }
@@ -721,23 +694,21 @@ ClassMethod GetClass(pNamespace As %String, pClassname As %String = "*") As %Sta
 ClassMethod GetNamespaces() As %Status
 {
 	do ..ProcessCustomHeaders()
-    #dim tSC As %Status = $$$OK
-    #dim tList,tNS,tFilteredList,tValue As %String
+    	#dim tSC As %Status = $$$OK
+    	#dim tList,tNS,tFilteredList,tValue As %String
     
-    #; Get the list of namespaces
-    Do List^%SYS.NAMESPACE(.tList)
-    Set tNS="" For  {
+    	#; Get the list of namespaces
+    	Do List^%SYS.NAMESPACE(.tList)
+    	Set tNS="" For  {
+     		Set tNS=$Order(tList(tNS),1,tValue) If tNS="" Quit
+    		#; Only want namespaces which are enabled and are not remote
+        	If $List(tValue,1)=1&&$List(tValue,2)=0 {
+           	Set tFilteredList(tNS)=""
+        	}
+    	}
     
-        Set tNS=$Order(tList(tNS),1,tValue) If tNS="" Quit
-    
-        #; Only want namespaces which are enabled and are not remote
-        If $List(tValue,1)=1&&$List(tValue,2)=0 {
-            Set tFilteredList(tNS)=""
-        }
-    }
-    
-    #; If we have been asked for json
-    //If $Get(%request.CgiEnvs("HTTP_ACCEPT"))="application/json" {
+    	#; If we have been asked for json
+    	//If $Get(%request.CgiEnvs("HTTP_ACCEPT"))="application/json" {
 	If ..jsonout() {
         
         #; Set the response header to JSON
@@ -769,7 +740,6 @@ ClassMethod GetNamespaces() As %Status
         }
     }
     Quit tSC
-}
+ }
 
 }
-
